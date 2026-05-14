@@ -55,7 +55,7 @@ export class BudgetService {
             },
         });
 
-        const spent = expenses.reduce((sum, t) => sum + t.amount, 0);
+        const spent = expenses.reduce((sum: number, t: any) => sum + t.amount, 0);
         const percentage = (spent / budget.limit) * 100;
 
         return {
