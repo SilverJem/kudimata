@@ -21,6 +21,18 @@ model User {
   budgets      Budget[]
   savingsGoals SavingsGoal[]
   debts        Debt[]
+  categories   Category[]
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  name      String
+  type      String   // "INCOME" or "EXPENSE"
+  createdAt DateTime @default(now())
+
+  @@unique([userId, name, type])
 }
 
 model Transaction {

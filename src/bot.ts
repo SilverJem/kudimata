@@ -9,6 +9,7 @@ import { incomeScene, INCOME_SCENE_ID } from './bot/scenes/income.scene';
 import { budgetScene, BUDGET_SCENE_ID } from './bot/scenes/budget.scene';
 import { savingsScene, SAVINGS_SCENE_ID } from './bot/scenes/savings.scene';
 import { debtScene, DEBT_SCENE_ID } from './bot/scenes/debt.scene';
+import { categoryScene, CATEGORY_SCENE_ID } from './bot/scenes/category.scene';
 
 // Services
 import { TransactionService } from './services/transaction.service';
@@ -30,7 +31,8 @@ const stage = new Scenes.Stage<KudiMataContext>([
     incomeScene,
     budgetScene,
     savingsScene,
-    debtScene
+    debtScene,
+    categoryScene
 ]);
 bot.use(stage.middleware());
 
@@ -68,7 +70,14 @@ bot.command('history', async (ctx) => {
     await ctx.reply(`📜 *Recent History*\n\n${historyText}`, { parse_mode: 'Markdown' });
 });
 
-bot.help((ctx) => ctx.reply('I can help you manage your finances. Use /start to see the main menu.'));
+bot.command('expense', (ctx) => ctx.scene.enter(EXPENSE_SCENE_ID));
+bot.command('income', (ctx) => ctx.scene.enter(INCOME_SCENE_ID));
+bot.command('budget', (ctx) => ctx.scene.enter(BUDGET_SCENE_ID));
+bot.command('savings', (ctx) => ctx.scene.enter(SAVINGS_SCENE_ID));
+bot.command('debt', (ctx) => ctx.scene.enter(DEBT_SCENE_ID));
+bot.command('categories', (ctx) => ctx.scene.enter(CATEGORY_SCENE_ID));
+
+bot.help((ctx) => ctx.reply('I can help you manage your finances.\n\nCommands:\n/start - Main menu\n/income - Add income\n/expense - Add expense\n/budget - Manage budget\n/savings - Savings goals\n/debt - Manage debts\n/categories - Manage categories\n/balance - Check balance\n/history - View history'));
 
 // Menu Actions
 bot.action('add_expense', (ctx) => ctx.scene.enter(EXPENSE_SCENE_ID));

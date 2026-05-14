@@ -1,6 +1,7 @@
-import { Scenes } from 'telegraf';
+import { Scenes, Markup } from 'telegraf';
 import { KudiMataContext } from '../../types';
 import { TransactionService } from '../../services/transaction.service';
+import { CategoryService } from '../../services/category.service';
 import { TransactionType } from '../../types/enums';
 
 export const EXPENSE_SCENE_ID = 'EXPENSE_SCENE';
@@ -22,27 +23,19 @@ export const expenseScene = new Scenes.WizardScene<KudiMataContext>(
 
         (ctx.wizard.state as any).amount = amount;
 
-        await ctx.reply('Select a category:', {
-            reply_markup: {
-                inline_keyboard: [
-                    [
-                        { text: '🍔 Food', callback_data: 'Food' },
-                        { text: '🚕 Transport', callback_data: 'Transport' }
-                    ],
-                    [
-                        { text: '🏠 Rent', callback_data: 'Rent' },
-                        { text: '💡 Bills', callback_data: 'Bills' }
-                    ],
-                    [
-                        { text: '🛍 Shopping', callback_data: 'Shopping' },
-                        { text: '🏥 Health', callback_data: 'Health' }
-                    ],
-                    [
-                        { text: '➕ Other', callback_data: 'Other' }
-                    ]
-                ]
-            }
-        });
+        const user = ctx.state.user;
+        if (!user) return ctx.scene.leave();
+
+        const categories = await CategoryService.getCategories(user.id, TransactionType.EXPENSE);
+        
+        const buttons = categories.map(cat => Markup.button.callback(cat.name, cat.name));
+        // Chunk buttons into rows of 2
+        const rows = [];
+        for (let i = 0; i < buttons.length; i += 2) {
+            rows.push(buttons.slice(i, i + 2));
+        }
+
+        await ctx.reply('Select a category:', Markup.inlineKeyboard(rows));
         return ctx.wizard.next();
     },
     // Step 3: Handle category and ask for note
