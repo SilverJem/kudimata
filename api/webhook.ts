@@ -12,7 +12,12 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                 res.status(200).json({ status: 'ok' });
             }
         } else {
-            res.status(200).send('KudiMata Bot is active!');
+            const url = `https://${req.headers.host}/api/webhook`;
+            res.status(200).send(`
+                <h1>KudiMata Bot is active!</h1>
+                <p>Webhook URL: <code>${url}</code></p>
+                <p><a href="https://api.telegram.org/bot${process.env.BOT_TOKEN}/setWebhook?url=${url}">Click here to register this webhook with Telegram</a></p>
+            `);
         }
     } catch (error) {
         console.error('CRITICAL: Webhook error:', error);
