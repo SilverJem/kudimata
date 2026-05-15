@@ -6,6 +6,11 @@
       "destination": "/api/webhook.ts"
     }
   ],
+  "functions": {
+    "api/**/*.ts": {
+      "runtime": "vercel-node@latest"
+    }
+  },
   "crons": [
     {
       "path": "/api/cron/reminders",

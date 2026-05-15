@@ -22,3 +22,8 @@ if (!process.env.VERCEL) {
 } else {
     console.log('Serverless environment detected. Skipping bot.launch().');
 }
+
+// Dummy export to satisfy Vercel's builder if it tries to deploy this as a function
+export default async () => {
+    return { status: 'Bot entry point is api/webhook.ts' };
+};
