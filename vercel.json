@@ -1,15 +1,15 @@
 {
   "version": 2,
-  "builds": [
+  "rewrites": [
     {
-      "src": "api/webhook.ts",
-      "use": "@vercel/node"
+      "source": "/api/webhook",
+      "destination": "/api/webhook.ts"
     }
   ],
-  "routes": [
+  "crons": [
     {
-      "src": "/api/webhook",
-      "dest": "api/webhook.ts"
+      "path": "/api/cron/reminders",
+      "schedule": "0 9 * * *"
     }
   ]
 }
