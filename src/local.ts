@@ -16,14 +16,4 @@ const startBot = async () => {
 process.once('SIGINT', () => bot.stop('SIGINT'));
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
 
-// Only launch polling if NOT in a serverless environment (Vercel)
-if (!process.env.VERCEL) {
-    startBot();
-} else {
-    console.log('Serverless environment detected. Skipping bot.launch().');
-}
-
-// Dummy export to satisfy Vercel's builder if it tries to deploy this as a function
-export default async () => {
-    return { status: 'Bot entry point is api/webhook.ts' };
-};
+startBot();

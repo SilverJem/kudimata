@@ -2,8 +2,8 @@
   "name": "telegram-bots",
   "version": "1.0.0",
   "scripts": {
-    "start": "node dist/index.js",
-    "dev": "nodemon --exec ts-node src/index.ts",
+    "start": "node dist/local.js",
+    "dev": "nodemon --exec ts-node src/local.ts",
     "build": "tsc",
     "postinstall": "prisma generate",
     "test": "echo \"Error: no test specified\" && exit 1"
