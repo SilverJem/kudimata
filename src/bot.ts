@@ -1,4 +1,4 @@
-import { Telegraf, Context, session, Scenes } from 'telegraf';
+import { Telegraf, Context, session, Scenes, Markup } from 'telegraf';
 import { KudiMataContext } from './types';
 import { startHandler } from './bot/commands/start';
 import { authMiddleware } from './bot/middleware/auth.middleware';
@@ -45,26 +45,29 @@ bot.use(stage.middleware());
 // Commands
 bot.start(startHandler);
 
-bot.command('balance', async (ctx) => {
+const balanceHandler = async (ctx: KudiMataContext) => {
     const user = ctx.state.user;
     if (!user) return;
 
     const stats = await TransactionService.getBalance(user.id);
     await ctx.reply(
-        `💳 *Current Balance*\n\n` +
+        `💳 *Current Month Overview*\n\n` +
         `💰 Income: ${user.currency}${stats.totalIncome.toLocaleString()}\n` +
         `💸 Expenses: ${user.currency}${stats.totalExpenses.toLocaleString()}\n` +
         `⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n` +
         `✨ *Balance: ${user.currency}${stats.balance.toLocaleString()}*`,
         { parse_mode: 'Markdown' }
     );
-});
+};
 
-bot.command('history', async (ctx) => {
+bot.command('balance', balanceHandler);
+
+const historyHandler = async (ctx: KudiMataContext) => {
     const userId = ctx.state.user?.id;
     if (!userId) return;
 
-    const filter = ctx.message.text.split(' ')[1]?.toLowerCase();
+    const text = (ctx.message as any)?.text || '';
+    const filter = text.split(' ')[1]?.toLowerCase();
     const transactions = await TransactionService.getRecentHistory(userId, 10);
     
     let filtered = transactions;
@@ -81,7 +84,14 @@ bot.command('history', async (ctx) => {
     ).join('\n\n');
     
     await ctx.reply(`📜 *Recent History${filter ? ` (${filter})` : ''}*\n\n${historyText}`, { parse_mode: 'Markdown' });
-});
+};
+
+bot.command('history', historyHandler);
+
+const helpHandler = (ctx: KudiMataContext) => ctx.reply('I can help you manage your finances.\n\nCommands:\n/start - Main menu\n/income - Add income\n/expense - Add expense\n/budget - Manage budget\n/savings - Savings goals\n/debt - Manage debts\n/categories - Manage categories\n/settings - Bot settings\n/reports - Financial reports\n/balance - Check balance\n/history - View history');
+
+bot.help(helpHandler);
+bot.command('help', helpHandler);
 
 bot.command('expense', (ctx) => ctx.scene.enter(EXPENSE_SCENE_ID));
 bot.command('income', (ctx) => ctx.scene.enter(INCOME_SCENE_ID));
@@ -115,13 +125,13 @@ bot.command('export', async (ctx) => {
 bot.hears('💰 Expense', (ctx) => ctx.scene.enter(EXPENSE_SCENE_ID));
 bot.hears('💵 Income', (ctx) => ctx.scene.enter(INCOME_SCENE_ID));
 bot.hears('📊 Reports', (ctx) => ctx.scene.enter(REPORTS_SCENE_ID));
-bot.hears('⚖️ Balance', (ctx) => ctx.command('balance'));
+bot.hears('⚖️ Balance', balanceHandler);
 bot.hears('🏦 Savings', (ctx) => ctx.scene.enter(SAVINGS_SCENE_ID));
 bot.hears('📌 Debts', (ctx) => ctx.scene.enter(DEBT_SCENE_ID));
-bot.hears('📒 History', (ctx) => ctx.command('history'));
+bot.hears('📒 History', historyHandler);
 bot.hears('📅 Budgets', (ctx) => ctx.scene.enter(BUDGET_SCENE_ID));
 bot.hears('⚙️ Settings', (ctx) => ctx.scene.enter(SETTINGS_SCENE_ID));
-bot.hears('❓ Help', (ctx) => ctx.command('help'));
+bot.hears('❓ Help', helpHandler);
 
 // Quick Entry Parser
 bot.on('text', async (ctx, next) => {

@@ -87,7 +87,6 @@ export const categoryScene = new Scenes.WizardScene<KudiMataContext>(
         await ctx.reply(`✅ Category "${name}" added successfully!`);
         
         // Return to start of scene
-        ctx.wizard.selectStep(0);
-        return ctx.wizard.steps[0](ctx);
+        return ctx.scene.reenter();
     }
 );
