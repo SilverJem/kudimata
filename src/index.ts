@@ -16,4 +16,9 @@ const startBot = async () => {
 process.once('SIGINT', () => bot.stop('SIGINT'));
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
 
-startBot();
+// Only launch polling if NOT in a serverless environment (Vercel)
+if (!process.env.VERCEL) {
+    startBot();
+} else {
+    console.log('Serverless environment detected. Skipping bot.launch().');
+}
